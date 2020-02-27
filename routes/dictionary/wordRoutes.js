@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Word = require('./models/Words');
 
 router.get('/', (req, res) => {
   Word.find({}).then(words => {
@@ -8,10 +9,10 @@ router.get('/', (req, res) => {
 });
 
 //add a new word
-router.delete('/addWord', (req, res) => {
-  const { word, definition } = req.body;
+router.post('/addWord', (req, res) => {
+  // const { word, definition } = req.body;
 
-  if (!word || !definition) {
+  if (!req.body.word || !req.body.definition) {
     return res.status(500).json({ message: 'All Inputs must be filled' });
   }
 
@@ -29,12 +30,16 @@ router.delete('/addWord', (req, res) => {
 
       newWord
         .save()
-        .then(word => {
-          return res.status(200).json({ message: 'Success', word });
+        .then((word) => {
+          return res.status(200).json({ message: 'Success', word: word });
         })
         .catch(err => res.status(500).json(err));
     })
     .catch(err => res.status(500).json({ message: 'Server Error' }, err));
+});
+
+router.get('/addWord', (rq, res) => {
+  res.render('addWord');
 });
 
 router.get('/findWord', (req, res) => {
@@ -76,7 +81,7 @@ router.put('/:word', (req, res) => {
   });
 });
 
-router.delete('/word', (req, res) => {
+router.delete('/delete/:word', (req, res) => {
   Word.findOneAndDelete({ word: req.params.word })
     .then(word => {
       return res.status(200).json({ message: 'Word deleted', word });
